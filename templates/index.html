@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gmail Scraper - Professional Email Search Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-envelope"></i>
+                    <h1>Gmail Scraper</h1>
+                </div>
+                <p class="tagline">Professional Email Search & Filtering Tool</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Auth Section -->
+            <section class="auth-section">
+                <div class="auth-card">
+                    <h2><i class="fas fa-lock"></i> Authentication</h2>
+                    <p>Click to authenticate with your Gmail account</p>
+                    <button id="authBtn" class="btn btn-primary btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Authenticate with Gmail
+                    </button>
+                    <p id="authStatus" class="status-message"></p>
+                </div>
+            </section>
+
+            <!-- Search Section -->
+            <section class="search-section" id="searchSection" style="display: none;">
+                <div class="search-card">
+                    <h2><i class="fas fa-search"></i> Search & Filter Emails</h2>
+
+                    <!-- Keywords -->
+                    <div class="form-group">
+                        <label for="keywords">Keywords (comma-separated)</label>
+                        <input type="text" id="keywords" placeholder="e.g., invoice, payment, urgent"
+                            class="input-field">
+                        <small>Search for emails containing these keywords</small>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="filters-container">
+                        <h3><i class="fas fa-filter"></i> Advanced Filters</h3>
+
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="fromFilter">From (Email)</label>
+                                <input type="email" id="fromFilter" placeholder="sender@example.com"
+                                    class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label for="toFilter">To (Email)</label>
+                                <input type="email" id="toFilter" placeholder="recipient@example.com"
+                                    class="input-field">
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="subjectFilter">Subject</label>
+                                <input type="text" id="subjectFilter" placeholder="e.g., Meeting" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label for="labelFilter">Label</label>
+                                <input type="text" id="labelFilter" placeholder="e.g., Work, Personal"
+                                    class="input-field">
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="afterFilter">After Date</label>
+                                <input type="date" id="afterFilter" class="input-field">
+                            </div>
+                            <div class="form-group">
+                                <label for="beforeFilter">Before Date</label>
+                                <input type="date" id="beforeFilter" class="input-field">
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="form-group">
+                                <label for="maxResults">Max Results</label>
+                                <input type="number" id="maxResults" value="10" min="1" max="100" class="input-field">
+                            </div>
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="hasAttachment">
+                                    Has Attachment
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Buttons -->
+                    <div class="button-group">
+                        <button id="searchBtn" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search Emails
+                        </button>
+                        <button id="clearBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+                <div class="spinner"></div>
+                <p>Searching emails...</p>
+            </div>
+
+            <!-- Results Section -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <div>
+                        <h2><i class="fas fa-envelope-open"></i> Search Results</h2>
+                        <p id="resultCount" class="result-count"></p>
+                    </div>
+                    <button id="exportBtn" class="btn btn-success">
+                        <i class="fas fa-download"></i> Export to JSON
+                    </button>
+                </div>
+
+                <div id="emailsList" class="emails-list"></div>
+            </section>
+
+            <!-- No Results -->
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>No emails found matching your criteria</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2024 Gmail Scraper | Professional Email Search Tool</p>
+            <p>Made for Academic Project Demonstration</p>
+        </footer>
+    </div>
+
+    <!-- Email Modal -->
+    <div id="emailModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalSubject"></h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>From:</strong> <span id="modalFrom"></span></p>
+                <p><strong>To:</strong> <span id="modalTo"></span></p>
+                <p><strong>Date:</strong> <span id="modalDate"></span></p>
+                <div class="modal-body-content">
+                    <p id="modalFullBody"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
